@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import axios from 'axios';
-
-const API = 'http://localhost:3000';
+import { Servicio } from '../../servicios/servicio'; // ajusta la ruta si es necesario
 
 @Component({
   selector: 'app-admin',
@@ -12,15 +10,17 @@ const API = 'http://localhost:3000';
   styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
+
   usuarios: any[] = [];
   cargando = true;
   error = '';
 
+  constructor(private servicio: Servicio) {}
+
   async ngOnInit() {
     try {
-      const { data } = await axios.get(`${API}/admin/usuarios`, { withCredentials: true });
-      this.usuarios = data;
-    } catch (err: any) {
+      this.usuarios = await this.servicio.obtenerUsuarios();
+    } catch (err) {
       this.error = 'Error al cargar usuarios.';
     } finally {
       this.cargando = false;
