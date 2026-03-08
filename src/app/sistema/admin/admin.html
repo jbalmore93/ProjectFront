@@ -1,0 +1,68 @@
+<div>
+  <h4 class="mb-4">👥 Gestión de Usuarios</h4>
+
+  <!-- CARGANDO -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-success"></div>
+    <p class="mt-2 text-muted">Cargando usuarios...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- TABLA -->
+  <div *ngIf="!cargando && !error" class="card shadow-sm">
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Intentos fallidos</th>
+            <th>Bloqueado hasta</th>
+            <th>Última actividad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of usuarios">
+            <td>{{ u.IdUsuario }}</td>
+            <td>{{ u.Email }}</td>
+            <td>
+              <span class="badge"
+                [class.bg-danger]="u.NombreRole === 'Admin'"
+                [class.bg-primary]="u.NombreRole === 'Maestro'"
+                [class.bg-success]="u.NombreRole === 'Padre'">
+                {{ u.NombreRole }}
+              </span>
+            </td>
+            <td>
+              <span class="badge"
+                [class.bg-success]="u.EstaActivo"
+                [class.bg-secondary]="!u.EstaActivo">
+                {{ u.EstaActivo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>
+              <span [class.text-danger]="u.IntentosFallidos >= 3"
+                    [class.fw-bold]="u.IntentosFallidos >= 3">
+                {{ u.IntentosFallidos }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="u.BloqueadoHasta" class="text-danger small">
+                {{ u.BloqueadoHasta | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+              <span *ngIf="!u.BloqueadoHasta" class="text-muted">—</span>
+            </td>
+            <td class="small text-muted">
+              {{ u.UltimaActividad | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

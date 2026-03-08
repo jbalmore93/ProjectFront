@@ -1,0 +1,82 @@
+<div class="d-flex" style="min-height: 100vh;">
+
+  <!-- SIDEBAR -->
+  <nav class="d-flex flex-column bg-dark text-white p-3" style="width: 250px;">
+
+    <div class="text-center mb-4">
+      <h5 class="fw-bold">🏫 Guardería</h5>
+      <small class="text-secondary">{{ user?.email }}</small><br>
+      <span class="badge bg-success mt-1">{{ user?.roleName }}</span>
+    </div>
+
+    <ul class="nav flex-column gap-1 flex-grow-1">
+
+      <!-- TODOS LOS ROLES -->
+      <li>
+        <a class="nav-link text-white rounded px-3 py-2"
+           routerLink="/sistema/dashboard" routerLinkActive="bg-success">
+          📊 Dashboard
+        </a>
+      </li>
+
+      <!-- SOLO ADMIN -->
+      <li *ngIf="isAdmin">
+        <a class="nav-link text-white rounded px-3 py-2"
+           routerLink="/sistema/admin/usuarios" routerLinkActive="bg-success">
+          👥 Usuarios
+        </a>
+      </li>
+
+      <!-- ADMIN Y MAESTRO -->
+      <li *ngIf="isAdmin || isMaestro">
+        <a class="nav-link text-white rounded px-3 py-2"
+           routerLink="/sistema/asistencia" routerLinkActive="bg-success">
+          📋 Asistencia
+        </a>
+      </li>
+
+      <li *ngIf="isAdmin || isMaestro">
+        <a class="nav-link text-white rounded px-3 py-2"
+           routerLink="/sistema/bitacora" routerLinkActive="bg-success">
+          📓 Bitácora
+        </a>
+      </li>
+
+      <!-- SOLO PADRE -->
+      <li *ngIf="isPadre">
+        <a class="nav-link text-white rounded px-3 py-2"
+           routerLink="/sistema/mis-ninos" routerLinkActive="bg-success">
+          👶 Mis Niños
+        </a>
+      </li>
+
+    </ul>
+
+    <!-- LOGOUT -->
+    <div class="mt-auto">
+      <hr class="border-secondary">
+      <div class="text-center mb-2 small text-secondary">
+        {{ user?.email }}
+      </div>
+      <button class="btn btn-outline-danger w-100" (click)="logout()">
+        🚪 Cerrar sesión
+      </button>
+    </div>
+
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="flex-grow-1 d-flex flex-column">
+
+    <header class="bg-white border-bottom px-4 py-2 d-flex justify-content-between align-items-center">
+      <h6 class="mb-0 text-muted">Bienvenido, {{ user?.email }}</h6>
+      <span class="badge bg-secondary">{{ user?.roleName }}</span>
+    </header>
+
+    <main class="p-4 bg-light flex-grow-1">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>
