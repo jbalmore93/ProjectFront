@@ -74,4 +74,15 @@ export class Servicio {
   }
 }
 
+async obtenerAsistencias(): Promise<any[]> {
+  try {
+    const data = await firstValueFrom(
+      this.http.get<any[]>('asistencia', { withCredentials: true })
+    );
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 }

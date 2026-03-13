@@ -1,0 +1,107 @@
+<div>
+  <h4 class="mb-4">📋 Asistencia</h4>
+
+  <!-- CARGANDO -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-success"></div>
+    <p class="mt-2 text-muted">Cargando información...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- CONTENIDO -->
+  <div *ngIf="!cargando && !error">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <strong>🕐 Registros de Asistencia</strong>
+      </div>
+      <div class="card-body p-0">
+
+        <div *ngIf="asistencias.length === 0" class="text-center text-muted py-4">
+          No hay registros de asistencia.
+        </div>
+
+        <table *ngIf="asistencias.length > 0" class="table table-hover mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>ID Niño</th>
+              <th>Hora Entrada</th>
+              <th>Hora Salida</th>
+              <th>Persona que Recoge</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of asistencias">
+              <td>{{ a.IdAsistencia }}</td>
+              <td>{{ a.IdNino }}</td>
+              <td>{{ a.HoraEntrada | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <span *ngIf="a.HoraSalida">{{ a.HoraSalida | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span *ngIf="!a.HoraSalida" class="badge bg-success">En guardería</span>
+              </td>
+              <td>{{ a.PersonaRecoge || '—' }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="verDetalle(a)">
+                  🔍 Ver Detalle
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="modal fade" id="modalAsistencia" tabindex="-1" aria-labelledby="modalAsistenciaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="modalAsistenciaLabel">
+          🔍 Detalle de Asistencia #{{ asistenciaSeleccionada?.IdAsistencia }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="asistenciaSeleccionada">
+          <div class="row mb-3">
+            <div class="col-6">
+              <small class="text-muted d-block">ID Niño</small>
+              <span>{{ asistenciaSeleccionada.IdNino }}</span>
+            </div>
+            <div class="col-6">
+              <small class="text-muted d-block">Persona que Recoge</small>
+              <span>{{ asistenciaSeleccionada.PersonaRecoge || '—' }}</span>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-6">
+              <small class="text-muted d-block">Hora Entrada</small>
+              <span>{{ asistenciaSeleccionada.HoraEntrada | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="col-6">
+              <small class="text-muted d-block">Hora Salida</small>
+              <span *ngIf="asistenciaSeleccionada.HoraSalida">
+                {{ asistenciaSeleccionada.HoraSalida | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+              <span *ngIf="!asistenciaSeleccionada.HoraSalida" class="badge bg-success">
+                Aún en guardería
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

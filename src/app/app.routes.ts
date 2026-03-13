@@ -4,6 +4,7 @@ import { Dashboard } from './sistema/dashboard/dashboard';
 import { Layout } from './Layout/layout/layout';
 import { Admin } from './sistema/admin/admin';
 import { MisNinos } from './sistema/mis-ninos/mis-ninos';
+import { Asistencia } from './sistema/asistencia/asistencia';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -15,7 +16,8 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: Dashboard },
       { path: 'admin/usuarios', component: Admin },
-      {path:'mis-ninos',component: MisNinos}
+      {path:'mis-ninos',component: MisNinos},
+      {path: 'asistencia',component: Asistencia}
     ]
   },
 
