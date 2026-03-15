@@ -36,12 +36,30 @@ export class MisNinos implements OnInit {
     }
   }
 
+estadoClase(animo: string) {
+
+  switch (animo) {
+    case 'Feliz':
+      return 'bg-success';
+    case 'Satisfecho':
+      return 'bg-primary';
+    case 'Regular':
+      return 'bg-warning text-dark';
+    case 'Triste':
+      return 'bg-danger';
+    default:
+      return 'bg-secondary';
+  }
+
+}
+
+
   async verBitacora(nino: any) {
     this.ninoSeleccionado = nino;
     this.bitacora = [];
     this.cargandoBitacora = true;
 
-    // Solo ejecuta en el navegador, no en el servidor
+  
     if (isPlatformBrowser(this.platformId)) {
       const { Modal } = await import('bootstrap');
       const modalEl = document.getElementById('modalBitacora')!;

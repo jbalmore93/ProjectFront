@@ -46,8 +46,8 @@
         </a>
       </li>
 
-      <!-- SOLO PADRE -->
-      <li *ngIf="auth.isAdmin() || auth.isPadre()">
+      
+      <li *ngIf="auth.isPadre()">
         <a class="nav-link text-white rounded px-3 py-2"
            routerLink="/sistema/mis-ninos"
            routerLinkActive="bg-success">

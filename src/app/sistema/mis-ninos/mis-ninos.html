@@ -54,7 +54,7 @@
       <th>Fecha de Nacimiento</th>
       <th>Grupo</th>
       <th>Alergias</th>
-      <th>Bitácora</th>  <!-- ← asegúrate de tener esta columna -->
+      <th>Bitácora</th>
     </tr>
   </thead>
   <tbody>
@@ -100,7 +100,7 @@
       </div>
       <div class="modal-body">
 
-        <!-- Cargando -->
+     
         <div *ngIf="cargandoBitacora" class="text-center py-4">
           <div class="spinner-border text-primary"></div>
           <p class="mt-2 text-muted">Cargando bitácora...</p>
@@ -125,20 +125,14 @@
           <tbody>
             <tr *ngFor="let b of bitacora">
               <td>{{ b.Fecha | date:'dd/MM/yyyy' }}</td>
-              <td>{{ b.Comida || '—' }}</td>
+              <td>{{ b.Comida ? 'Sí' : 'No' }}</td>
               <td>{{ b.SiestaMinutos ?? '—' }}</td>
               <td>
-                <span class="badge"
-                  [ngClass]="{
-                    'bg-success': b.EstadoAnimo === 'Feliz',
-                    'bg-warning text-dark': b.EstadoAnimo === 'Regular',
-                    'bg-danger': b.EstadoAnimo === 'Triste',
-                    'bg-secondary': !b.EstadoAnimo
-                  }">
-                  {{ b.EstadoAnimo || '—' }}
-                </span>
+                <span class="badge" [ngClass]="estadoClase(b.EstadoAnimo)">
+                    {{ b.EstadoAnimo || 'Sin Informacion' }}
+               </span>
               </td>
-              <td>{{ b.Observaciones || '—' }}</td>
+              <td>{{ b.Observaciones || 'Sin Observaciones' }}</td>
             </tr>
           </tbody>
         </table>

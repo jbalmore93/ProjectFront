@@ -85,4 +85,14 @@ async obtenerAsistencias(): Promise<any[]> {
   }
 }
 
+async crearBitacora(data: any) {
+
+  const res = await firstValueFrom(
+    this.http.post('/bitacora', data)
+  );
+
+  return res;
+
+}
+
 }

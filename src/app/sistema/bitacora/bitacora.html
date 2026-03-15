@@ -1,0 +1,111 @@
+<div>
+  <h4 class="mb-4">📘 Bitácora Diaria</h4>
+
+  <!-- CARGANDO -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-success"></div>
+    <p class="mt-2 text-muted">Cargando información...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- FORMULARIO -->
+  <div *ngIf="!cargando && !error">
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <strong>📝 Registrar Bitácora</strong>
+      </div>
+
+      <div class="card-body">
+
+        <form (ngSubmit)="guardar()" #formBitacora="ngForm">
+
+          <!-- ID NIÑO -->
+          <div class="mb-3">
+            <label class="form-label">ID Niño</label>
+            <input
+              type="number"
+              class="form-control"
+              name="idNino"
+              [(ngModel)]="bitacora.idNino"
+              required>
+          </div>
+
+          <!-- COMIDA -->
+          <div class="form-check mb-3">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="comida"
+              name="comida"
+              [(ngModel)]="bitacora.comida">
+            <label class="form-check-label" for="comida">
+              🍽️ Comió
+            </label>
+          </div>
+
+          <!-- SIESTA -->
+          <div class="mb-3">
+            <label class="form-label">😴 Siesta (minutos)</label>
+            <input
+              type="number"
+              class="form-control"
+              name="siestaMinutos"
+              [(ngModel)]="bitacora.siestaMinutos">
+          </div>
+
+          <!-- ESTADO ANIMO -->
+          <div class="mb-3">
+            <label class="form-label">🙂 Estado de Ánimo</label>
+            <select
+              class="form-select"
+              name="estadoAnimo"
+              [(ngModel)]="bitacora.estadoAnimo">
+
+              <option value="">Seleccione</option>
+              <option value="Feliz">Feliz</option>
+              <option value="Tranquilo">Tranquilo</option>
+              <option value="Cansado">Cansado</option>
+              <option value="Enojado">Enojado</option>
+              <option value="Triste">Triste</option>
+
+            </select>
+          </div>
+
+          <!-- OBSERVACIONES -->
+          <div class="mb-3">
+            <label class="form-label">📋 Observaciones</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              name="observaciones"
+              [(ngModel)]="bitacora.observaciones">
+            </textarea>
+          </div>
+
+          <!-- BOTON -->
+          <div class="d-grid">
+            <button
+              type="submit"
+              class="btn btn-success"
+              [disabled]="guardando">
+
+              <span *ngIf="guardando" class="spinner-border spinner-border-sm"></span>
+              Guardar Bitácora
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+    <!-- MENSAJE -->
+    <div *ngIf="mensaje" class="alert alert-success mt-3">
+      {{ mensaje }}
+    </div>
+
+  </div>
+</div>
