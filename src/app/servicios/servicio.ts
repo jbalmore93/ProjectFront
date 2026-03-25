@@ -94,5 +94,14 @@ async crearBitacora(data: any) {
   return res;
 
 }
-
+async crearUsuario(data: any) {
+  try {
+    const res = await firstValueFrom(
+      this.http.post('auth/register', data, { withCredentials: true })
+    );
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
 }
