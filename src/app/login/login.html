@@ -1,15 +1,16 @@
 <div class="container vh-100 d-flex justify-content-center align-items-center">
   <div class="card shadow-lg p-4" style="width: 400px; border-radius: 15px;">
-<div class="text-center mb-3">
-  <img src="logo.jpeg" class="img-fluid" style="max-width: 200px;">
-</div>
+    
+    <div class="text-center mb-3">
+      <img src="logo.jpeg" class="img-fluid" style="max-width: 200px;">
+    </div>
+    
     <div class="text-center mb-4">
-
       <p class="text-muted">Ingrese sus credenciales</p>
     </div>
 
     <form #loginForm="ngForm" (ngSubmit)="login(loginForm)" novalidate>
-
+      
       <!-- EMAIL -->
       <div class="mb-3">
         <label class="form-label">Correo electrónico</label>
@@ -49,6 +50,7 @@
       <!-- ERROR -->
       <div class="alert alert-danger py-2" *ngIf="error">
         <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+        <span *ngIf="bloqueado" class="fw-bold ms-1">({{ tiempoFormateado }})</span>
       </div>
 
       <!-- BOTÓN -->
@@ -56,13 +58,14 @@
         <button 
           class="btn btn-success"
           type="submit"
-          [disabled]="loginForm.invalid || cargando">
+          [disabled]="loginForm.invalid || cargando || bloqueado">
           <span 
-            *ngIf="cargando" 
-            class="spinner-border spinner-border-sm me-2" 
+            *ngIf="cargando"
+            class="spinner-border spinner-border-sm me-2"
             role="status">
           </span>
-          {{ cargando ? 'Ingresando...' : 'Ingresar' }}
+          <i *ngIf="bloqueado" class="bi bi-lock-fill me-2"></i>
+          {{ cargando ? 'Ingresando...' : bloqueado ? 'Bloqueado ' + tiempoFormateado : 'Ingresar' }}
         </button>
       </div>
 

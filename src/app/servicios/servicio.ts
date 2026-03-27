@@ -13,33 +13,33 @@ export class Servicio {
     private http: HttpClient
   ) {}
 
-  async login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
-    try {
-      const res: any = await firstValueFrom(
-        this.http.post('auth/login', { email, password }, { withCredentials: true })
-      );
+  async login(email: string, password: string): Promise<{ success: boolean; status?: number; error?: string }> {
+  try {
+    const res: any = await firstValueFrom(
+      this.http.post('auth/login', { email, password }, { withCredentials: true })
+    );
 
-      if (res?.token) {
-        localStorage.setItem('token', res.token);
-      }
-
-      await firstValueFrom(
-        this.http.get('me', { withCredentials: true })
-      );
-
-      this.router.navigate(['/sistema/dashboard']);
-      return { success: true };
-
-    } catch (err: any) {
-      if (err.status === 423) {
-        return { success: false, error: 'Cuenta bloqueada por intentos fallidos. Intenta en 15 minutos.' };
-      }
-      if (err.status === 401) {
-        return { success: false, error: 'Correo o contraseña incorrectos.' };
-      }
-      return { success: false, error: 'Error de conexión. Intente de nuevo.' };
+    if (res?.token) {
+      localStorage.setItem('token', res.token);
     }
+
+    await firstValueFrom(
+      this.http.get('me', { withCredentials: true })
+    );
+
+    this.router.navigate(['/sistema/dashboard']);
+    return { success: true };
+
+  } catch (err: any) {
+    if (err.status === 423) {
+      return { success: false, status: 423, error: 'Cuenta bloqueada por intentos fallidos.' };
+    }
+    if (err.status === 401) {
+      return { success: false, status: 401, error: 'Correo o contraseña incorrectos.' };
+    }
+    return { success: false, status: err.status, error: 'Error de conexión. Intente de nuevo.' };
   }
+}
 
   async obtenerUsuarios(): Promise<any[]> {
     try {
