@@ -1,0 +1,287 @@
+<div>
+  <h4 class="mb-4">📝 Notas – Inicial 1 Año</h4>
+ 
+  <!-- BOTÓN REGISTRAR (solo maestro y admin) -->
+  <div class="mb-3" *ngIf="auth.isAdmin() || auth.isMaestro()">
+    <button class="btn btn-primary" (click)="abrirModalNueva()">
+      ➕ Registrar Nota
+    </button>
+  </div>
+ 
+  <!-- FILTROS -->
+  <div class="row mb-3 g-2">
+    <div class="col-md-4">
+      <input type="text" class="form-control" placeholder="🔍 Buscar niño..."
+        [(ngModel)]="filtroNino" (ngModelChange)="aplicarFiltros()">
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="filtroAmbito" (ngModelChange)="aplicarFiltros()">
+        <option value="">Todos los ámbitos</option>
+        <option value="social">Relaciones Sociales y Afectivas</option>
+        <option value="explora">Exploración y Experimentación</option>
+        <option value="estetica">Estéticas y Creativas</option>
+        <option value="lenguaje">Lenguaje, Comunicación y Expresión</option>
+        <option value="cuerpo">Cuerpo, Movimiento y Bienestar Físico</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="filtroPeriodo" (ngModelChange)="aplicarFiltros()">
+        <option value="">Todos los períodos</option>
+        <option value="I">Período I</option>
+        <option value="II">Período II</option>
+        <option value="III">Período III</option>
+      </select>
+    </div>
+  </div>
+ 
+  <!-- STATS -->
+  <div class="d-flex gap-2 flex-wrap mb-3">
+    <span class="badge bg-primary">Total: {{ notas.length }}</span>
+    <span class="badge bg-success">Completas: {{ notasCompletas() }}</span>
+    <span class="badge bg-warning text-dark">Incompletas: {{ notas.length - notasCompletas() }}</span>
+    <span class="badge bg-secondary">Mostrando: {{ notasFiltradas.length }}</span>
+  </div>
+ 
+  <!-- TABLA -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-dark text-white">
+      <strong>📊 Registro de Notas por Ámbito</strong>
+    </div>
+    <div class="card-body p-0">
+ 
+      <div *ngIf="notasFiltradas.length === 0" class="text-center text-muted py-4">
+        No hay notas registradas.
+      </div>
+ 
+      <div class="table-responsive" *ngIf="notasFiltradas.length > 0">
+        <table class="table table-hover mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Niño/a</th>
+              <th>Período</th>
+              <th>Fecha</th>
+              <th>Maestra</th>
+              <th *ngFor="let a of ambitosVisibles()">{{ a.labelCorto }}</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let n of notasFiltradas">
+              <td><strong>{{ n.nombre }}</strong></td>
+              <td><span class="badge bg-secondary">Per. {{ n.periodo }}</span></td>
+              <td>{{ n.fecha | date:'dd/MM/yyyy' }}</td>
+              <td>{{ n.maestra || '—' }}</td>
+              <td *ngFor="let a of ambitosVisibles()">
+                <span
+                  *ngFor="let nucId of nucleosPorAmbito(a.key)"
+                  class="badge me-1"
+                  [ngClass]="badgeNota(n.nucleos[nucId])"
+                  [title]="labelNucleo(nucId)">
+                  {{ n.nucleos[nucId] || '·' }}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="verDetalle(n)">
+                  🔍 Ver
+                </button>
+                <button class="btn btn-sm btn-outline-secondary me-1"
+                  *ngIf="auth.isAdmin() || auth.isMaestro()"
+                  (click)="editarNota(n)">
+                  ✏️
+                </button>
+                <button class="btn btn-sm btn-danger"
+                  *ngIf="auth.isAdmin() || auth.isMaestro()"
+                  (click)="pedirEliminar(n)">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════ -->
+<!-- MODAL REGISTRAR / EDITAR NOTA             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="modal fade" id="modalNota" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+ 
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">{{ editandoId ? '✏️ Editar Nota' : '➕ Registrar Nota' }}</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+ 
+      <div class="modal-body">
+        <div *ngIf="errorForm" class="alert alert-danger">{{ errorForm }}</div>
+ 
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Nombre del Niño/a <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="form.nombre" placeholder="Nombre completo">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Período <span class="text-danger">*</span></label>
+            <select class="form-select" [(ngModel)]="form.periodo">
+              <option value="">Seleccionar...</option>
+              <option value="I">Período I</option>
+              <option value="II">Período II</option>
+              <option value="III">Período III</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Fecha</label>
+            <input type="date" class="form-control" [(ngModel)]="form.fecha">
+          </div>
+        </div>
+ 
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Maestra</label>
+            <input type="text" class="form-control" [(ngModel)]="form.maestra" placeholder="Nombre de la maestra">
+          </div>
+        </div>
+ 
+        <hr>
+        <p class="text-muted small mb-3">
+          <strong>Escala:</strong> A = Logrado &nbsp;·&nbsp; B = En proceso &nbsp;·&nbsp; C = Iniciado &nbsp;·&nbsp; D = No logrado
+        </p>
+ 
+        <!-- Secciones por ámbito -->
+        <div *ngFor="let ambito of AMBITOS" class="mb-3">
+          <h6 class="fw-bold text-primary-emphasis mb-2">{{ ambito.icon }} {{ ambito.label }}</h6>
+          <div class="card">
+            <div class="card-body p-2">
+              <div *ngFor="let nuc of nucleosDeAmbito(ambito.key)"
+                class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="small">{{ nuc.label }}</span>
+                <select class="form-select form-select-sm w-auto" [(ngModel)]="form.nucleos[nuc.id]">
+                  <option value="">—</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="mb-3">
+          <label class="form-label">Observaciones</label>
+          <textarea class="form-control" [(ngModel)]="form.observaciones" rows="3"
+            placeholder="Notas adicionales sobre el desempeño del niño/a..."></textarea>
+        </div>
+ 
+      </div>
+ 
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" (click)="guardarNota()"
+          [disabled]="!form.nombre.trim() || !form.periodo">
+          💾 Guardar
+        </button>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════ -->
+<!-- MODAL VER DETALLE                         -->
+<!-- ══════════════════════════════════════════ -->
+<div class="modal fade" id="modalDetalle" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+ 
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">🔍 Detalle de Nota – {{ notaSeleccionada?.nombre }}</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+ 
+      <div class="modal-body" *ngIf="notaSeleccionada">
+ 
+        <div class="row mb-3">
+          <div class="col-6">
+            <small class="text-muted">Niño/a</small>
+            <div><strong>{{ notaSeleccionada.nombre }}</strong></div>
+          </div>
+          <div class="col-3">
+            <small class="text-muted">Período</small>
+            <div><span class="badge bg-secondary">Per. {{ notaSeleccionada.periodo }}</span></div>
+          </div>
+          <div class="col-3">
+            <small class="text-muted">Fecha</small>
+            <div>{{ notaSeleccionada.fecha | date:'dd/MM/yyyy' }}</div>
+          </div>
+        </div>
+ 
+        <div class="row mb-3">
+          <div class="col-6">
+            <small class="text-muted">Maestra</small>
+            <div>{{ notaSeleccionada.maestra || '—' }}</div>
+          </div>
+        </div>
+ 
+        <hr>
+ 
+        <div *ngFor="let ambito of AMBITOS" class="mb-3">
+          <h6 class="fw-bold text-primary-emphasis mb-1">{{ ambito.icon }} {{ ambito.label }}</h6>
+          <div class="card">
+            <div class="card-body p-2">
+              <div *ngFor="let nuc of nucleosDeAmbito(ambito.key)"
+                class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="small">{{ nuc.label }}</span>
+                <span class="badge"
+                  [ngClass]="badgeNota(notaSeleccionada.nucleos[nuc.id])">
+                  {{ notaSeleccionada.nucleos[nuc.id] || '—' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+ 
+        <div *ngIf="notaSeleccionada.observaciones" class="mt-3">
+          <small class="text-muted">Observaciones</small>
+          <div class="alert alert-warning py-2 mt-1">{{ notaSeleccionada.observaciones }}</div>
+        </div>
+ 
+      </div>
+ 
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════ -->
+<!-- MODAL CONFIRMAR ELIMINAR                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+ 
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">⚠️ Confirmar</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+ 
+      <div class="modal-body text-center">
+        <p>¿Eliminar la nota de <strong>{{ notaAEliminar?.nombre }}</strong>?</p>
+        <small class="text-muted">Esta acción no se puede deshacer.</small>
+      </div>
+ 
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-danger" (click)="eliminarNota()">Eliminar</button>
+      </div>
+ 
+    </div>
+  </div>
+</div>

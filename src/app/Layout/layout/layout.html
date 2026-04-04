@@ -38,6 +38,22 @@
         </a>
       </li>
 
+ <li *ngIf="auth.isAdmin() || auth.isMaestro()">
+        <a class="nav-link text-white rounded px-3 py-2"
+           routerLink="/sistema/ninos"
+           routerLinkActive="bg-success">
+          👶 Niños
+        </a>
+      </li>
+
+       <li *ngIf="auth.isAdmin() || auth.isMaestro() || auth.isPadre()">
+        <a class="nav-link text-white rounded px-3 py-2"
+           routerLink="/sistema/documentos"
+           routerLinkActive="bg-success">
+         📄 Documentos
+        </a>
+      </li>
+      
       <li *ngIf="auth.isAdmin() || auth.isMaestro()">
         <a class="nav-link text-white rounded px-3 py-2"
            routerLink="/sistema/bitacora"
@@ -45,7 +61,13 @@
           📓 Bitácora
         </a>
       </li>
-
+<li *ngIf="auth.isAdmin() || auth.isMaestro() || auth.isPadre()">
+  <a class="nav-link text-white rounded px-3 py-2"
+     routerLink="/sistema/notas"
+     routerLinkActive="bg-success">
+    📝 Notas
+  </a>
+</li>
       
       <li *ngIf="auth.isPadre()">
         <a class="nav-link text-white rounded px-3 py-2"

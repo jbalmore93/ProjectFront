@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Inject, NgZone } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Servicio } from '../servicios/servicio';
 
 @Component({
@@ -18,6 +18,7 @@ export class Login implements OnInit, OnDestroy {
   pass: string = '';
   cargando: boolean = false;
   error: string = '';
+  sessionExpired: boolean = false;
 
   bloqueado: boolean = false;
   tiempoRestante: number = 0;
@@ -25,13 +26,15 @@ export class Login implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private servicio: Servicio,
-    private ngZone: NgZone,              // ← único cambio en el constructor
+    private ngZone: NgZone,
     @Inject(DOCUMENT) private doc: Document
   ) {}
 
   ngOnInit() {
     this.doc.body.style.backgroundColor = '#1a1a2e';
+    this.sessionExpired = this.route.snapshot.queryParamMap.get('sessionExpired') === 'true';
   }
 
   ngOnDestroy() {
@@ -57,9 +60,9 @@ export class Login implements OnInit, OnDestroy {
     this.tiempoRestante = minutos * 60;
     this.limpiarInterval();
 
-    this.ngZone.runOutsideAngular(() => {          // ← cambio aquí
+    this.ngZone.runOutsideAngular(() => {
       this.countdownInterval = setInterval(() => {
-        this.ngZone.run(() => {                    // ← y aquí
+        this.ngZone.run(() => {
           this.tiempoRestante--;
           if (this.tiempoRestante <= 0) {
             this.bloqueado = false;

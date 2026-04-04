@@ -1,0 +1,212 @@
+<div>
+  <h4 class="mb-4">👶 Niños</h4>
+
+  <!-- BOTÓN REGISTRAR -->
+  <div class="mb-3">
+    <button class="btn btn-primary" (click)="abrirModalCrear()">
+      ➕ Registrar Niño
+    </button>
+  </div>
+
+  <!-- CARGANDO -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2 text-muted">Cargando niños...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- TABLA -->
+  <div *ngIf="!cargando && !error">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <strong>📋 Listado de Niños</strong>
+      </div>
+      <div class="card-body p-0">
+
+        <div *ngIf="ninos.length === 0" class="text-center text-muted py-4">
+          No hay niños registrados.
+        </div>
+
+        <table *ngIf="ninos.length > 0" class="table table-hover mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Grupo</th>
+              <th>Tutor</th>
+              <th>Alergias</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let n of ninos">
+              <td>{{ n.IdNino }}</td>
+              <td>{{ n.Nombre }}</td>
+              <td>{{ n.Apellido }}</td>
+              <td><span class="badge bg-info text-dark">{{ n.Grupo }}</span></td>
+              <td>{{ n.TutorNombre }} {{ n.TutorApellido }}</td>
+              <td>{{ n.Alergias || '—' }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="verDetalle(n)">
+                  🔍 Ver
+                </button>
+                <button class="btn btn-sm btn-warning me-1" (click)="abrirModalEditar(n)">
+                  ✏️ Editar
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="confirmarEliminar(n)">
+                  🗑️ Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR / EDITAR -->
+<div class="modal fade" id="modalNino" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header" [ngClass]="modoEdicion ? 'bg-warning' : 'bg-primary text-white'">
+        <h5 class="modal-title">{{ modoEdicion ? '✏️ Editar Niño' : '➕ Registrar Niño' }}</h5>
+        <button class="btn-close" [ngClass]="modoEdicion ? '' : 'btn-close-white'" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="row mb-3">
+          <div class="col-6">
+            <label class="form-label">Nombre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="form.nombre" placeholder="Nombre">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Apellido <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="form.apellido" placeholder="Apellido">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">ID Tutor <span class="text-danger">*</span></label>
+          <input type="number" class="form-control" [(ngModel)]="form.idTutor" placeholder="ID del tutor">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Fecha de Nacimiento <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" [(ngModel)]="form.fechaNacimiento">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Grupo <span class="text-danger">*</span></label>
+          <select class="form-select" [(ngModel)]="form.grupo">
+            <option value="">Seleccionar grupo...</option>
+            <option value="Maternal 1">Maternal 1</option>
+            <option value="Maternal 2">Maternal 2</option>
+            <option value="Maternal 3">Maternal 3</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Alergias <span class="text-muted small">(opcional)</span></label>
+          <input type="text" class="form-control" [(ngModel)]="form.alergias" placeholder="Ej: Lactosa, Maní...">
+        </div>
+
+        <div *ngIf="errorForm" class="alert alert-danger">{{ errorForm }}</div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button
+          class="btn"
+          [ngClass]="modoEdicion ? 'btn-warning' : 'btn-primary'"
+          (click)="guardarNino()"
+          [disabled]="!form.idTutor || !form.nombre.trim() || !form.apellido.trim() || !form.fechaNacimiento || !form.grupo">
+          {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="modal fade" id="modalDetalle" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">🔍 Detalle del Niño #{{ ninoSeleccionado?.IdNino }}</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" *ngIf="ninoSeleccionado">
+        <div class="row mb-3">
+          <div class="col-6">
+            <small class="text-muted">Nombre</small>
+            <div>{{ ninoSeleccionado.Nombre }}</div>
+          </div>
+          <div class="col-6">
+            <small class="text-muted">Apellido</small>
+            <div>{{ ninoSeleccionado.Apellido }}</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-6">
+            <small class="text-muted">Fecha de Nacimiento</small>
+            <div>{{ ninoSeleccionado.FechaNacimiento | date:'dd/MM/yyyy' }}</div>
+          </div>
+          <div class="col-6">
+            <small class="text-muted">Grupo</small>
+            <div><span class="badge bg-info text-dark">{{ ninoSeleccionado.Grupo }}</span></div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-6">
+            <small class="text-muted">Tutor</small>
+            <div>{{ ninoSeleccionado.TutorNombre }} {{ ninoSeleccionado.TutorApellido }}</div>
+          </div>
+          <div class="col-6">
+            <small class="text-muted">Alergias</small>
+            <div>{{ ninoSeleccionado.Alergias || '—' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR ELIMINAR -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">⚠️ Confirmar</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body text-center">
+        <p>¿Eliminar a <strong>{{ ninoAEliminar?.Nombre }} {{ ninoAEliminar?.Apellido }}</strong>?</p>
+        <small class="text-muted">Esta acción no se puede deshacer.</small>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-danger" (click)="eliminarNino()">Eliminar</button>
+      </div>
+
+    </div>
+  </div>
+</div>

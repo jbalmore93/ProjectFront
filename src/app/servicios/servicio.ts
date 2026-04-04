@@ -104,4 +104,89 @@ async crearUsuario(data: any) {
     throw error;
   }
 }
+
+async checkin(idNino: number) {
+  try {
+    const res = await firstValueFrom(
+      this.http.post('asistencia/checkin', { idNino }, { withCredentials: true })
+    );
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async checkout(idAsistencia: number, personaRecoge: string) {
+  try {
+    const res = await firstValueFrom(
+      this.http.post('asistencia/checkout', {
+        idAsistencia,
+        personaRecoge
+      })
+    );
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async listarNinos(): Promise<any[]> {
+  try {
+    const data = await firstValueFrom(
+      this.http.get<any[]>('ninos', { withCredentials: true })
+    );
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async registrarNino(data: {
+  idTutor: number;
+  nombre: string;
+  apellido: string;
+  fechaNacimiento: string;
+  alergias?: string;
+  grupo: string;
+}): Promise<any> {
+  try {
+    const res = await firstValueFrom(
+      this.http.post('ninos', data, { withCredentials: true })
+    );
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async actualizarNino(id: number, data: {
+  idTutor: number;
+  nombre: string;
+  apellido: string;
+  fechaNacimiento: string;
+  alergias?: string;
+  grupo: string;
+}): Promise<any> {
+  try {
+    const res = await firstValueFrom(
+      this.http.put(`ninos/${id}`, data, { withCredentials: true })
+    );
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async eliminarNino(id: number): Promise<any> {
+  try {
+    const res = await firstValueFrom(
+      this.http.delete(`ninos/${id}`, { withCredentials: true })
+    );
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
 }

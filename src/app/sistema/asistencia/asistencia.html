@@ -1,6 +1,13 @@
 <div>
   <h4 class="mb-4">📋 Asistencia</h4>
 
+  <!-- BOTÓN CHECK-IN -->
+  <div class="mb-3">
+    <button class="btn btn-success" (click)="abrirModalCheckin()">
+      ➕ Registrar Entrada
+    </button>
+  </div>
+
   <!-- CARGANDO -->
   <div *ngIf="cargando" class="text-center py-5">
     <div class="spinner-border text-success"></div>
@@ -16,6 +23,7 @@
       <div class="card-header bg-dark text-white">
         <strong>🕐 Registros de Asistencia</strong>
       </div>
+
       <div class="card-body p-0">
 
         <div *ngIf="asistencias.length === 0" class="text-center text-muted py-4">
@@ -33,19 +41,33 @@
               <th>Detalle</th>
             </tr>
           </thead>
+
           <tbody>
             <tr *ngFor="let a of asistencias">
               <td>{{ a.IdAsistencia }}</td>
               <td>{{ a.IdNino }}</td>
+
               <td>{{ a.HoraEntrada | date:'dd/MM/yyyy HH:mm' }}</td>
+
               <td>
-                <span *ngIf="a.HoraSalida">{{ a.HoraSalida | date:'dd/MM/yyyy HH:mm' }}</span>
-                <span *ngIf="!a.HoraSalida" class="badge bg-success">En guardería</span>
+                <span *ngIf="a.HoraSalida">
+                  {{ a.HoraSalida | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+                <span *ngIf="!a.HoraSalida" class="badge bg-success">
+                  En guardería
+                </span>
               </td>
+
               <td>{{ a.PersonaRecoge || '—' }}</td>
+
               <td>
                 <button
-                  type="button"
+                  *ngIf="!a.HoraSalida"
+                  class="btn btn-sm btn-warning me-2"
+                  (click)="abrirModalCheckout(a)">
+                  🚪 Salida
+                </button>
+                <button
                   class="btn btn-sm btn-outline-primary"
                   (click)="verDetalle(a)">
                   🔍 Ver Detalle
@@ -61,47 +83,142 @@
 </div>
 
 <!-- MODAL DETALLE -->
-<div class="modal fade" id="modalAsistencia" tabindex="-1" aria-labelledby="modalAsistenciaLabel" aria-hidden="true">
+<div class="modal fade" id="modalAsistencia" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
+
       <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title" id="modalAsistenciaLabel">
+        <h5 class="modal-title">
           🔍 Detalle de Asistencia #{{ asistenciaSeleccionada?.IdAsistencia }}
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-        <div *ngIf="asistenciaSeleccionada">
-          <div class="row mb-3">
-            <div class="col-6">
-              <small class="text-muted d-block">ID Niño</small>
-              <span>{{ asistenciaSeleccionada.IdNino }}</span>
-            </div>
-            <div class="col-6">
-              <small class="text-muted d-block">Persona que Recoge</small>
-              <span>{{ asistenciaSeleccionada.PersonaRecoge || '—' }}</span>
-            </div>
+
+      <div class="modal-body" *ngIf="asistenciaSeleccionada">
+        <div class="row mb-3">
+          <div class="col-6">
+            <small class="text-muted">ID Niño</small>
+            <div>{{ asistenciaSeleccionada.IdNino }}</div>
           </div>
-          <div class="row mb-3">
-            <div class="col-6">
-              <small class="text-muted d-block">Hora Entrada</small>
-              <span>{{ asistenciaSeleccionada.HoraEntrada | date:'dd/MM/yyyy HH:mm' }}</span>
+          <div class="col-6">
+            <small class="text-muted">Persona que Recoge</small>
+            <div>{{ asistenciaSeleccionada.PersonaRecoge || '—' }}</div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-6">
+            <small class="text-muted">Hora Entrada</small>
+            <div>{{ asistenciaSeleccionada.HoraEntrada | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
+          <div class="col-6">
+            <small class="text-muted">Hora Salida</small>
+            <div *ngIf="asistenciaSeleccionada.HoraSalida">
+              {{ asistenciaSeleccionada.HoraSalida | date:'dd/MM/yyyy HH:mm' }}
             </div>
-            <div class="col-6">
-              <small class="text-muted d-block">Hora Salida</small>
-              <span *ngIf="asistenciaSeleccionada.HoraSalida">
-                {{ asistenciaSeleccionada.HoraSalida | date:'dd/MM/yyyy HH:mm' }}
-              </span>
-              <span *ngIf="!asistenciaSeleccionada.HoraSalida" class="badge bg-success">
-                Aún en guardería
-              </span>
-            </div>
+            <span *ngIf="!asistenciaSeleccionada.HoraSalida" class="badge bg-success">
+              Aún en guardería
+            </span>
           </div>
         </div>
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CHECKOUT -->
+<div class="modal fade" id="modalCheckout" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">🚪 Registrar Salida</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="mb-3">
+          <label class="form-label">ID Asistencia</label>
+          <input
+            type="number"
+            class="form-control"
+            [value]="asistenciaCheckout?.IdAsistencia"
+            disabled>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Persona que recoge</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="personaRecoge"
+            #personaRecogeInput="ngModel"
+            placeholder="Ej: Mamá, Papá, Tío..."
+            required
+            minlength="3">
+
+          <div *ngIf="personaRecogeInput.invalid && personaRecogeInput.touched" class="text-danger mt-1 small">
+            <span *ngIf="personaRecogeInput.errors?.['required']">Este campo es requerido.</span>
+            <span *ngIf="personaRecogeInput.errors?.['minlength']">Mínimo 3 caracteres.</span>
+          </div>
+        </div>
+
+        <div *ngIf="errorCheckout" class="alert alert-danger">
+          {{ errorCheckout }}
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button
+          class="btn btn-warning"
+          (click)="registrarCheckout()"
+          [disabled]="!personaRecoge || personaRecoge.trim().length < 3">
+          Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CHECK-IN -->
+<div class="modal fade" id="modalCheckin" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">➕ Registrar Entrada</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">ID del Niño</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="idNinoCheckin"
+            placeholder="Ingrese ID del niño">
+        </div>
+
+        <div *ngIf="errorCheckin" class="alert alert-danger">
+          {{ errorCheckin }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success" (click)="registrarCheckin()">Guardar</button>
+      </div>
+
     </div>
   </div>
 </div>
